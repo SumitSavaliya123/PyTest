@@ -1,0 +1,107 @@
+name: Pytest CRUD API CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1-5'   # Run every weekday at 06:00 UTC
+
+jobs:
+  test:
+    name: API Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      - name: Run smoke tests
+        run: |
+          pytest -m smoke \
+            --html=reports/smoke_report.html \
+            --self-contained-html \
+            -v
+
+      - name: Run full test suite
+        run: |
+          pytest \
+            --html=reports/full_report_py${{ matrix.python-version }}.html \
+            --self-contained-html \
+            --json-report \
+            --json-report-file=reports/report_py${{ matrix.python-version }}.json \
+            --cov=tests \
+            --cov-report=xml:reports/coverage.xml \
+            --cov-report=term-missing \
+            --tb=short \
+            -v
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports-py${{ matrix.python-version }}
+          path: reports/
+          retention-days: 30
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: matrix.python-version == '3.11'
+        with:
+          file: reports/coverage.xml
+          flags: api-tests
+          fail_ci_if_error: false
+
+  # ── Separate job: run only negative/schema tests ────────────────────────────
+  schema-validation:
+    name: Schema Validation Tests
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run schema validation tests
+        run: |
+          pytest -m schema \
+            --html=reports/schema_report.html \
+            --self-contained-html \
+            -v
+
+      - name: Upload schema report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: schema-validation-report
+          path: reports/schema_report.html
