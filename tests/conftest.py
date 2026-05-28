@@ -99,28 +99,7 @@ def sample_patch_payload():
     return {"title": "Patched Title from Fixture"}
 
 
-# ── Faker-based dynamic data fixture ──────────────────────────────────────────
 
-@pytest.fixture
-def fake_post_payload():
-    """
-    Dynamically generated post data using Faker.
-    Each test call gets unique data.
-    """
-    try:
-        from faker import Faker
-        fake = Faker()
-        return {
-            "title":  fake.sentence(nb_words=6).rstrip("."),
-            "body":   fake.paragraph(nb_sentences=3),
-            "userId": fake.random_int(min=1, max=10),
-        }
-    except ImportError:
-        return {
-            "title":  "Dynamic Test Post",
-            "body":   "Generated without Faker library.",
-            "userId": 1,
-        }
 
 
 # ── Reporting hook ─────────────────────────────────────────────────────────────
