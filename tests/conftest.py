@@ -7,7 +7,7 @@ import sys
 import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from config import BASE_URL, ENDPOINTS, DEFAULT_HEADERS, REQUEST_TIMEOUT
+from config import BASE_URL, ENDPOINTS, DEFAULT_HEADERS, HTTP_OK, REQUEST_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +71,7 @@ def existing_post(api_session, endpoints):
     Used in tests that need a valid existing resource.
     """
     response = api_session.get(f"{endpoints['posts']}/1", timeout=REQUEST_TIMEOUT)
-    assert response.status_code == 200, "Failed to fetch seed post"
+    assert response.status_code == HTTP_OK, "Failed to fetch seed post"
     return response.json()
 
 
@@ -79,7 +79,7 @@ def existing_post(api_session, endpoints):
 def existing_user(api_session, endpoints):
     """Fetch a real user from the API once per session."""
     response = api_session.get(f"{endpoints['users']}/1", timeout=REQUEST_TIMEOUT)
-    assert response.status_code == 200, "Failed to fetch seed user"
+    assert response.status_code == HTTP_OK, "Failed to fetch seed user"
     return response.json()
 
 
@@ -97,30 +97,6 @@ def sample_post_payload():
 def sample_patch_payload():
     """Minimal payload for PATCH requests."""
     return {"title": "Patched Title from Fixture"}
-
-
-# ── Faker-based dynamic data fixture ──────────────────────────────────────────
-
-@pytest.fixture
-def fake_post_payload():
-    """
-    Dynamically generated post data using Faker.
-    Each test call gets unique data.
-    """
-    try:
-        from faker import Faker
-        fake = Faker()
-        return {
-            "title":  fake.sentence(nb_words=6).rstrip("."),
-            "body":   fake.paragraph(nb_sentences=3),
-            "userId": fake.random_int(min=1, max=10),
-        }
-    except ImportError:
-        return {
-            "title":  "Dynamic Test Post",
-            "body":   "Generated without Faker library.",
-            "userId": 1,
-        }
 
 
 # ── Reporting hook ─────────────────────────────────────────────────────────────

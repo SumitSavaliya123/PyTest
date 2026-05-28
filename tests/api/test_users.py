@@ -1,6 +1,3 @@
-# tests/api/test_users.py
-# Tests for /users endpoint — schema validation, nested object checks, filtering
-
 import pytest
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
@@ -15,7 +12,6 @@ from tests.utils.helpers import assert_schema, assert_response_time, log_respons
 class TestGetUsers:
 
     def test_get_all_users_returns_200(self, api_session, users_url):
-        """GET /users → 200 OK."""
         response = api_session.get(users_url, timeout=REQUEST_TIMEOUT)
         assert response.status_code == HTTP_OK
 

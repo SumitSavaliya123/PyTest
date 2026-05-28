@@ -1,12 +1,9 @@
-# tests/api/test_posts_crud.py
-# Full CRUD test suite for /posts endpoint against JSONPlaceholder
-
 import pytest
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 
 from config import REQUEST_TIMEOUT, HTTP_OK, HTTP_CREATED, HTTP_NOT_FOUND
-from tests.schemas.schemas import POST_SCHEMA, POST_LIST_SCHEMA, CREATED_POST_SCHEMA
+from tests.schemas.schemas import POST_SCHEMA, CREATED_POST_SCHEMA
 from tests.utils.helpers import assert_schema, assert_response_time, log_request, log_response
 
 
@@ -126,10 +123,10 @@ class TestCreatePost:
         assert response.json()["title"] == fake_post_payload["title"]
 
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # UPDATE — PUT tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
 @pytest.mark.crud
 @pytest.mark.posts
 class TestUpdatePost:

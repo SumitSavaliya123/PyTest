@@ -1,6 +1,3 @@
-# tests/api/test_comments.py
-# Tests for /comments endpoint
-
 import pytest
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
@@ -14,12 +11,10 @@ from tests.utils.helpers import assert_schema, log_response
 class TestComments:
 
     def test_get_all_comments_200(self, api_session, comments_url):
-        """GET /comments → 200 OK."""
         response = api_session.get(comments_url, timeout=REQUEST_TIMEOUT)
         assert response.status_code == HTTP_OK
 
     def test_get_all_comments_count(self, api_session, comments_url):
-        """GET /comments → 500 comments total."""
         response = api_session.get(comments_url, timeout=REQUEST_TIMEOUT)
         assert len(response.json()) == 500
 

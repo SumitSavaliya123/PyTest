@@ -1,6 +1,3 @@
-# tests/api/test_schema_validation.py
-# Dedicated schema validation tests across all endpoints
-
 import pytest
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
